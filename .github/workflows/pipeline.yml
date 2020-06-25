@@ -39,7 +39,11 @@ jobs:
         setAllVars: true
     
     - name: Tagging
-      run: git tag -a ${{env.NBGV_SimpleVersion}} -m "Version ${{env.NBGV_SimpleVersion}}"
+      run: | 
+         git config --global user.email "matteo.pagani@microsoft.com"
+         git config --global user.name "Matteo Pagani"
+         git tag -a ${{env.NBGV_SimpleVersion}} -m "Version ${{env.NBGV_SimpleVersion}}"
+          
     
     - name: Update manifest version
       run: |
