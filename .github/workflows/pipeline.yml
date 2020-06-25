@@ -1,0 +1,69 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+    
+env:
+    solutionFile: .\windows\ReactNew.sln
+    manifestPath: .\windows\ReactNew\Package.appxmanifest
+    packageFolderPath: .\windows\AppPackages\
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: windows-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@2008f912f56e61277eefaac6d1888b750582aa16
+    
+    - name: Use Nerdbank.GitVersioning to set version variables
+      uses: aarnott/nbgv@v0.3
+      with:
+        setAllVars: true
+    
+    - name: Update manifest version
+      run: |
+        [xml]$manifest = get-content ${{env.manifestPath}}
+        $manifest.Package.Identity.Version = "${{env.NBGV_SimpleVersion}}.0"
+        $manifest.save("${{env.manifestPath}}")
+        
+    - name: Build
+      run: msbuild $env:solutionFile /restore /p:Configuration=$env:configuration /p:AppxBundlePlatforms=$env:platform /p:AppxBundle=Never /p:UapAppxPackageBuildMode=$env:package_build_mode /p:AppxPackageSigningEnabled=false
+      env:
+        configuration: Release
+        platform: x86
+        package_build_mode: SideloadOnly
+        
+    - name: Install AzureSignTool
+      run: dotnet tool install --global AzureSignTool --version 2.0.17
+    
+    - name: Sign package
+      run: |
+            Get-ChildItem -recurse -Include *.msix | ForEach-Object {
+            $msixPath = $_.FullName
+            & AzureSignTool sign -kvu https://contosoexpenses.vault.azure.net/ -kvi "${{ secrets.AzureClientId }}" -kvs "${{ secrets.AzureClientSecret }}" -kvc MyCertificate -tr http://timestamp.digicert.com -v $msixPath
+            }  
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        # Artifact name
+        name: MSIX
+        # Directory containing files to upload
+        path: $env:packageFolderPath
+      
+      
