@@ -45,7 +45,7 @@ jobs:
       run: yarn install
     
     - name: Restore NuGet Packages
-    - run: nuget restore $env:solutionFile
+      run: nuget restore $env:solutionFile
         
     - name: Build
       run: msbuild $env:solutionFile /p:Configuration=$env:configuration /p:AppxBundlePlatforms=$env:platform /p:AppxBundle=Never /p:UapAppxPackageBuildMode=$env:package_build_mode /p:AppxPackageSigningEnabled=false
