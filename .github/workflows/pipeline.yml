@@ -41,11 +41,14 @@ jobs:
         $manifest.Package.Identity.Version = "${{env.NBGV_SimpleVersion}}.0"
         $manifest.save("${{env.manifestPath}}")
         
-    - name: Restore packages
+    - name: Restore Node packages
       run: yarn install
+    
+    - name: Restore NuGet Packages
+    - run: nuget restore $env:solutionFile
         
     - name: Build
-      run: msbuild $env:solutionFile /restore /p:Configuration=$env:configuration /p:AppxBundlePlatforms=$env:platform /p:AppxBundle=Never /p:UapAppxPackageBuildMode=$env:package_build_mode /p:AppxPackageSigningEnabled=false
+      run: msbuild $env:solutionFile /p:Configuration=$env:configuration /p:AppxBundlePlatforms=$env:platform /p:AppxBundle=Never /p:UapAppxPackageBuildMode=$env:package_build_mode /p:AppxPackageSigningEnabled=false
       env:
         configuration: Release
         platform: x86
