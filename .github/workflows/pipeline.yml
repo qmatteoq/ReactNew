@@ -70,6 +70,6 @@ jobs:
         # Artifact name
         name: MSIX
         # Directory containing files to upload
-        path: $env:packageFolderPath
+        path: ${{env.packageFolderPath}}
       
       
