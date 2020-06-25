@@ -74,4 +74,26 @@ jobs:
         # Directory containing files to upload
         path: ${{env.packageFolderPath}}
       
+    - name: Create a Release
+      uses: actions/create-release@v1.1.1
+      id: create_release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
+      with:
+        # The name of the tag. This should come from the webhook payload, `github.GITHUB_REF` when a user pushes a new tag
+        tag_name: v${{env.NBGV_SimpleVersion}}
+        # The name of the release. For example, `Release v1.0.1`
+        release_name: Release ${{env.NBGV_SimpleVersion}}
+        # Text describing the contents of the tag.
       
+    - name: Upload a Release Asset
+      uses: actions/upload-release-asset@v1.0.2
+      with:
+        # The URL for uploading assets to the release
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        # The path to the asset you want to upload
+        asset_path: ${{env.packageFolderPath}}/ReactNew/ReactNew_{{env.NBGV_SimpleVersion}}.0_Win32_Test/ReactNew_{{env.NBGV_SimpleVersion}}.0_Win32.msix
+        # The name of the asset you want to upload
+        asset_name: ReactNew.msix
+        # The content-type of the asset you want to upload. See the supported Media Types here: https://www.iana.org/assignments/media-types/media-types.xhtml for more information
+        asset_content_type: application/msix
