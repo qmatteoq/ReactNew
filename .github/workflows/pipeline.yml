@@ -28,7 +28,8 @@ jobs:
     - uses: actions/checkout@v2
       with:
           fetch-depth: 0
-
+          
+    
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@2008f912f56e61277eefaac6d1888b750582aa16
     
@@ -36,6 +37,9 @@ jobs:
       uses: aarnott/nbgv@v0.3
       with:
         setAllVars: true
+    
+    - name: Tagging
+      run: git tag -a ${{env.NBGV_SimpleVersion}} -m "Version ${{env.NBGV_SimpleVersion}}"
     
     - name: Update manifest version
       run: |
