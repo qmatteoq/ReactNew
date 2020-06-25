@@ -63,7 +63,7 @@ jobs:
       run: |
             Get-ChildItem -recurse -Include *.msix | ForEach-Object {
             $msixPath = $_.FullName
-            & AzureSignTool sign -kvu https://contosoexpenses.vault.azure.net/ -kvi "${{ secrets.AzureClientId }}" -kvs "${{ secrets.AzureClientSecret }}" -kvc MyCertificate -tr http://timestamp.digicert.com -v $msixPath
+            & AzureSignTool sign -kvu ${{ secrets.AZUREKEYVAULTURL }} -kvi "${{ secrets.AZUREKEYVAULTCLIENTID }}" -kvs "${{ secrets.AZUREKEYVAULTSECRET }}" -kvc ${{ secrets.AZUREKEYVAULTCERTIFICATENAME}} -tr http://timestamp.digicert.com -v $msixPath
             }  
 
     - name: Upload artifact
